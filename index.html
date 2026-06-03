@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Velour — Couture Dresses</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --rose:        #be3455;
+  --rose-light:  #e05577;
+  --rose-pale:   #fde8ee;
+  --rose-mid:    #f4a0b5;
+  --gold:        #c9963a;
+  --gold-pale:   #fdf3e3;
+  --blush:       #f7e2e8;
+  --grad-main:   linear-gradient(135deg,#be3455 0%,#e05577 50%,#c9963a 100%);
+  --grad-soft:   linear-gradient(135deg,#fff9fb 0%,#fdf3e3 50%,#fff5f8 100%);
+  --grad-card:   linear-gradient(145deg,#ffffff 0%,#fff5f8 100%);
+  --c-bg:        #fffbfc;
+  --c-surface:   #ffffff;
+  --c-ink:       #2a0d15;
+  --c-ink2:      #4a1a26;
+  --c-muted:     #8a5566;
+  --c-border:    rgba(190,52,85,.11);
+  --c-border2:   rgba(190,52,85,.2);
+  --nav-h:       76px;
+  --font-serif:  'Cormorant Garamond',serif;
+  --font-sans:   'DM Sans',sans-serif;
+  --shadow-sm:   0 2px 12px rgba(190,52,85,.07);
+  --shadow-md:   0 8px 40px rgba(190,52,85,.12);
+  --shadow-lg:   0 20px 80px rgba(190,52,85,.16);
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--c-bg);
+  color:var(--c-ink);
+  font-family:var(--font-sans);
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* ─── CURSOR ─── */
+#cur{position:fixed;width:9px;height:9px;background:var(--rose);border-radius:50%;
+  pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:.08s}
+#cur-ring{position:fixed;width:34px;height:34px;border:1.5px solid rgba(190,52,85,.4);
+  border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);
+  transition:width .3s,height .3s,border-color .3s}
+body:has(a:hover) #cur-ring,body:has(button:hover) #cur-ring{
+  width:52px;height:52px;border-color:var(--rose)}
+
+/* ─── CANVAS ─── */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.45}
+
+/* ─── NAV ─── */
+nav{
+  position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:200;
+  display:flex;align-items:center;justify-content:space-between;padding:0 5vw;
+  transition:background .5s,backdrop-filter .5s,box-shadow .5s;
+}
+nav.glass{
+  background:rgba(255,251,252,.82);
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  box-shadow:0 1px 0 var(--c-border);
+}
+.nav-logo{
+  display:flex;align-items:center;gap:10px;text-decoration:none;
+  font-family:var(--font-serif);font-size:1.55rem;color:var(--c-ink);letter-spacing:.03em;font-weight:400;
+}
+.logo-gem{
+  width:30px;height:30px;border-radius:8px;
+  background:var(--grad-main);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(190,52,85,.3);
+}
+.logo-gem svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round}
+.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links a{
+  font-size:.74rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--c-muted);text-decoration:none;position:relative;padding-bottom:3px;
+  transition:color .25s;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:0;left:0;width:0;height:1.5px;border-radius:2px;
+  background:var(--grad-main);transition:width .38s cubic-bezier(.4,0,.2,1);
+}
+.nav-links a:hover{color:var(--rose)}
+.nav-links a:hover::after{width:100%}
+.nav-right{display:flex;align-items:center;gap:1.5rem}
+.nav-cta{
+  font-family:var(--font-sans);font-size:.72rem;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;
+  background:var(--grad-main);color:#fff;padding:11px 26px;
+  border-radius:100px;text-decoration:none;border:none;cursor:none;
+  box-shadow:0 4px 20px rgba(190,52,85,.28);
+  transition:box-shadow .3s,transform .25s;
+}
+.nav-cta:hover{box-shadow:0 8px 32px rgba(190,52,85,.42);transform:translateY(-1px)}
+
+/* hamburger */
+.burger{display:none;flex-direction:column;gap:5px;background:none;border:none;
+  cursor:none;padding:5px}
+.burger span{display:block;width:22px;height:1.5px;background:var(--c-ink);border-radius:2px;
+  transition:transform .38s cubic-bezier(.4,0,.2,1),opacity .28s,width .3s;transform-origin:left}
+.burger.open span:nth-child(1){transform:rotate(40deg) translateY(-1px)}
+.burger.open span:nth-child(2){opacity:0;width:0}
+.burger.open span:nth-child(3){transform:rotate(-40deg) translateY(1px)}
+
+/* mobile menu */
+#mob{position:fixed;inset:0;z-index:190;
+  background:rgba(255,251,252,.97);backdrop-filter:blur(32px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.8rem;
+  opacity:0;pointer-events:none;transition:opacity .4s}
+#mob.open{opacity:1;pointer-events:all}
+#mob a{font-family:var(--font-serif);font-size:clamp(2rem,7vw,3.5rem);
+  color:var(--c-ink);text-decoration:none;
+  opacity:0;transform:translateY(18px);transition:opacity .4s,transform .4s,color .25s}
+#mob.open a:nth-child(1){opacity:1;transform:none;transition-delay:.05s}
+#mob.open a:nth-child(2){opacity:1;transform:none;transition-delay:.11s}
+#mob.open a:nth-child(3){opacity:1;transform:none;transition-delay:.17s}
+#mob.open a:nth-child(4){opacity:1;transform:none;transition-delay:.23s}
+#mob a:hover{color:var(--rose)}
+
+/* ─── HERO ─── */
+#hero{
+  min-height:100svh;
+  display:grid;place-items:center;
+  padding:calc(var(--nav-h) + 3rem) 5vw 6rem;
+  position:relative;overflow:hidden;
+  background:var(--grad-soft);
+}
+#hero::before{
+  content:'';position:absolute;
+  width:700px;height:700px;border-radius:50%;
+  background:radial-gradient(circle,rgba(224,85,119,.1) 0%,transparent 70%);
+  top:-200px;right:-200px;pointer-events:none;
+}
+#hero::after{
+  content:'';position:absolute;
+  width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,150,58,.08) 0%,transparent 70%);
+  bottom:-100px;left:-100px;pointer-events:none;
+}
+.hero-inner{
+  position:relative;z-index:2;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:5vw;align-items:center;max-width:1200px;width:100%;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(190,52,85,.08);border:1px solid rgba(190,52,85,.18);
+  color:var(--rose);border-radius:100px;
+  font-size:.65rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+  padding:7px 16px;margin-bottom:2rem;
+  opacity:0;transform:translateY(12px);
+}
+.hero-badge .dot{width:5px;height:5px;border-radius:50%;background:var(--rose);
+  box-shadow:0 0 6px var(--rose);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+h1{
+  font-family:var(--font-serif);
+  font-size:clamp(3rem,5.5vw,5.5rem);
+  font-weight:300;line-height:1.08;letter-spacing:-.01em;
+  color:var(--c-ink);margin-bottom:1.75rem;
+  opacity:0;
+}
+h1 .grad{
+  background:var(--grad-main);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;display:inline;
+}
+h1 .line{display:block;overflow:hidden}
+h1 .line span{display:block;transform:translateY(105%)}
+.hero-sub{
+  font-size:1rem;font-weight:300;line-height:1.8;
+  color:var(--c-muted);max-width:440px;margin-bottom:2.5rem;
+  opacity:0;transform:translateY(14px);
+}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap;
+  opacity:0;transform:translateY(14px)}
+.btn-primary{
+  display:inline-block;padding:14px 32px;
+  background:var(--grad-main);color:#fff;
+  font-size:.76rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  border-radius:100px;text-decoration:none;
+  box-shadow:0 6px 24px rgba(190,52,85,.3);
+  transition:box-shadow .3s,transform .25s;
+}
+.btn-primary:hover{box-shadow:0 10px 36px rgba(190,52,85,.42);transform:translateY(-2px)}
+.btn-outline{
+  display:inline-block;padding:13px 32px;
+  border:1.5px solid var(--c-border2);color:var(--c-ink);
+  font-size:.76rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  border-radius:100px;text-decoration:none;background:rgba(255,255,255,.6);
+  transition:border-color .3s,color .3s,background .3s;
+}
+.btn-outline:hover{border-color:var(--rose);color:var(--rose);background:#fff}
+
+/* hero dress visual */
+.hero-visual{
+  display:flex;align-items:center;justify-content:center;
+  position:relative;opacity:0;transform:translateY(24px) scale(.98);
+}
+.frame-showcase{
+  width:100%;max-width:520px;
+  background:linear-gradient(145deg,#fff 0%,#fff5f8 60%,#fdf3e3 100%);
+  border-radius:28px;padding:4rem 3rem;
+  box-shadow:var(--shadow-lg),inset 0 1px 0 rgba(255,255,255,.8);
+  border:1px solid rgba(190,52,85,.1);
+  position:relative;overflow:hidden;
+}
+.frame-showcase::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(190,52,85,.12) 0%,transparent 70%);
+}
+.showcase-label{
+  font-size:.62rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--rose);margin-bottom:.8rem;
+}
+.showcase-name{
+  font-family:var(--font-serif);font-size:2rem;
+  color:var(--c-ink);margin-bottom:2rem;font-weight:400;
+}
+.showcase-svg{width:100%;margin-bottom:2.5rem;
+  filter:drop-shadow(0 8px 24px rgba(190,52,85,.15))}
+.showcase-price{
+  font-family:var(--font-serif);font-size:1.6rem;color:var(--rose);
+}
+.showcase-meta{font-size:.75rem;color:var(--c-muted);margin-top:.3rem}
+.badge-new{
+  position:absolute;top:1.5rem;right:1.5rem;
+  background:var(--grad-main);color:#fff;
+  font-size:.6rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  padding:5px 12px;border-radius:100px;
+  box-shadow:0 4px 12px rgba(190,52,85,.28);
+}
+
+/* ─── TICKER ─── */
+.ticker-wrap{
+  position:relative;z-index:2;
+  border-top:1px solid var(--c-border);
+  border-bottom:1px solid var(--c-border);
+  background:linear-gradient(90deg,rgba(253,232,238,.95),rgba(253,243,227,.95));
+  overflow:hidden;padding:16px 0;
+}
+.ticker-track{display:flex;width:max-content;animation:tick 24s linear infinite}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker-item{
+  font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--rose);padding:0 2.5rem;white-space:nowrap;opacity:.7;
+}
+.ticker-dot{color:var(--gold);opacity:1}
+
+/* ─── SECTION UTILS ─── */
+section{position:relative;z-index:2}
+.sec-label{
+  font-size:.62rem;font-weight:600;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--rose);margin-bottom:1.1rem;display:flex;align-items:center;gap:10px;
+}
+.sec-label::before{content:'';width:24px;height:1.5px;
+  background:var(--grad-main);border-radius:2px}
+.sec-h2{
+  font-family:var(--font-serif);font-size:clamp(2rem,4vw,3.4rem);
+  font-weight:300;line-height:1.12;color:var(--c-ink);
+}
+.sec-h2 .grad{
+  background:var(--grad-main);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;
+}
+.reveal{opacity:0;transform:translateY(32px)}
+
+/* ─── COLLECTION ─── */
+#collection{padding:9rem 5vw;background:var(--c-bg)}
+.col-top{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  margin-bottom:4.5rem;flex-wrap:wrap;gap:2rem;
+}
+.col-right{
+  max-width:300px;font-size:.85rem;color:var(--c-muted);
+  line-height:1.75;font-weight:300;text-align:right;
+}
+.product-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:24px;
+}
+.p-card{
+  background:var(--grad-card);
+  border-radius:20px;padding:2.5rem 2rem 2rem;
+  border:1px solid var(--c-border);
+  box-shadow:var(--shadow-sm);
+  transition:box-shadow .4s,transform .35s,border-color .3s;
+  cursor:none;position:relative;overflow:hidden;
+}
+.p-card::before{
+  content:'';position:absolute;inset:0;border-radius:20px;
+  background:var(--grad-main);opacity:0;transition:opacity .4s;
+}
+.p-card:hover{
+  box-shadow:var(--shadow-lg);transform:translateY(-6px);
+  border-color:rgba(190,52,85,.25);
+}
+.p-card:hover::before{opacity:.04}
+.p-num{
+  font-size:.6rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--rose);margin-bottom:1.8rem;display:block;
+}
+.p-frame{
+  width:100%;aspect-ratio:2/3;display:flex;
+  align-items:center;justify-content:center;margin-bottom:2rem;
+}
+.p-frame svg{width:80%;height:auto;
+  filter:drop-shadow(0 6px 20px rgba(190,52,85,.18))}
+.p-name{
+  font-family:var(--font-serif);font-size:1.35rem;
+  color:var(--c-ink);margin-bottom:.4rem;font-weight:400;
+}
+.p-type{
+  font-size:.7rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--c-muted);margin-bottom:1.6rem;
+}
+.p-footer{
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--c-border);padding-top:1.2rem;
+}
+.p-price{font-family:var(--font-serif);font-size:1.2rem;color:var(--rose)}
+.p-btn{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--grad-main);display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:.85rem;
+  box-shadow:0 4px 12px rgba(190,52,85,.28);
+  transition:box-shadow .3s,transform .25s;
+}
+.p-card:hover .p-btn{box-shadow:0 6px 20px rgba(190,52,85,.42);transform:scale(1.1)}
+
+/* ─── FEATURE TRIO ─── */
+#features{
+  padding:9rem 5vw;
+  background:linear-gradient(180deg,var(--rose-pale) 0%,var(--gold-pale) 50%,var(--c-bg) 100%);
+}
+.feat-header{text-align:center;max-width:560px;margin:0 auto 5rem}
+.feat-header .sec-label{justify-content:center}
+.feat-header .sec-label::before{display:none}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.feat-card{
+  background:#fff;border-radius:20px;padding:3rem 2.5rem;
+  border:1px solid var(--c-border);box-shadow:var(--shadow-sm);
+  text-align:center;transition:box-shadow .35s,transform .3s;
+}
+.feat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-4px)}
+.feat-icon{
+  width:56px;height:56px;border-radius:16px;
+  background:var(--grad-main);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1.8rem;
+  box-shadow:0 6px 20px rgba(190,52,85,.24);
+}
+.feat-icon svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.feat-title{
+  font-family:var(--font-serif);font-size:1.3rem;color:var(--c-ink);margin-bottom:.8rem;font-weight:400;
+}
+.feat-body{font-size:.84rem;color:var(--c-muted);line-height:1.75;font-weight:300}
+
+/* ─── PHILOSOPHY ─── */
+#philosophy{
+  padding:10rem 5vw;
+  background:var(--c-bg);
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:8vw;align-items:center;
+}
+.phi-visual{position:relative}
+.phi-card{
+  background:linear-gradient(145deg,#fff 0%,#fff5f8 100%);
+  border-radius:24px;padding:4rem 3.5rem;
+  border:1px solid var(--c-border);
+  box-shadow:var(--shadow-lg);position:relative;overflow:hidden;
+}
+.phi-card::after{
+  content:'';position:absolute;bottom:-40px;right:-40px;
+  width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,150,58,.1) 0%,transparent 70%);
+}
+.phi-quote{
+  font-family:var(--font-serif);font-size:clamp(1.5rem,2.5vw,2rem);
+  font-weight:300;line-height:1.5;color:var(--c-ink);
+  margin-bottom:2rem;font-style:italic;
+}
+.phi-q-mark{
+  font-size:5rem;line-height:.7;font-family:var(--font-serif);
+  background:var(--grad-main);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;
+  display:block;margin-bottom:.5rem;
+}
+.phi-attr{
+  font-size:.68rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--rose);display:flex;align-items:center;gap:10px;
+}
+.phi-attr::before{content:'';width:24px;height:1px;background:var(--rose)}
+.phi-text .sec-h2{margin-bottom:1.5rem}
+.phi-text p{
+  font-size:.92rem;color:var(--c-muted);line-height:1.85;
+  margin-bottom:1.25rem;font-weight:300;
+}
+.phi-stats{
+  display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:3rem;
+}
+.phi-stat{
+  background:linear-gradient(145deg,#fff5f8 0%,#fdf3e3 100%);
+  border:1px solid var(--c-border);border-radius:16px;
+  padding:1.75rem 1.5rem;
+}
+.phi-stat-n{
+  font-family:var(--font-serif);font-size:2.4rem;
+  background:var(--grad-main);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;
+  line-height:1;margin-bottom:.4rem;font-weight:300;
+}
+.phi-stat-l{font-size:.65rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--c-muted)}
+
+/* ─── PROCESS ─── */
+#process{
+  padding:9rem 5vw;
+  background:linear-gradient(135deg,#fff5f8 0%,#fdf3e3 40%,#fff9fb 100%);
+}
+.proc-header{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  margin-bottom:4.5rem;flex-wrap:wrap;gap:2rem;
+}
+.proc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.proc-card{
+  background:rgba(255,255,255,.7);
+  border:1px solid var(--c-border);border-radius:20px;
+  padding:2.5rem 2rem;
+  backdrop-filter:blur(8px);
+  transition:background .3s,box-shadow .35s,transform .3s;
+}
+.proc-card:hover{background:#fff;box-shadow:var(--shadow-md);transform:translateY(-4px)}
+.proc-n{
+  font-family:var(--font-serif);font-size:3.5rem;font-weight:300;line-height:1;
+  background:var(--grad-main);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:1.8rem;opacity:.4;
+}
+.proc-title{
+  font-weight:600;font-size:.86rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--c-ink);margin-bottom:.8rem;
+}
+.proc-body{font-size:.8rem;color:var(--c-muted);line-height:1.72;font-weight:300}
+
+/* ─── CONTACT ─── */
+#contact{
+  padding:9rem 5vw;
+  background:var(--c-bg);
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:8vw;align-items:start;
+}
+.con-left .sec-h2{margin-bottom:1.25rem}
+.con-left p{font-size:.88rem;color:var(--c-muted);line-height:1.8;margin-bottom:2.5rem;max-width:380px;font-weight:300}
+.con-details{display:flex;flex-direction:column;gap:1.25rem}
+.con-row-l{font-size:.6rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--c-muted);margin-bottom:.25rem}
+.con-row-v{font-family:var(--font-serif);font-size:1rem;color:var(--rose);font-weight:400}
+.con-form{display:flex;flex-direction:column;gap:1.25rem}
+.cf-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.cf-field{display:flex;flex-direction:column;gap:.5rem}
+.cf-label{font-size:.6rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--c-muted)}
+.cf-input,.cf-ta{
+  background:#fff;border:1.5px solid var(--c-border);border-radius:10px;
+  padding:13px 16px;color:var(--c-ink);font-family:var(--font-sans);
+  font-size:.88rem;outline:none;resize:none;
+  transition:border-color .28s,box-shadow .28s;
+}
+.cf-input::placeholder,.cf-ta::placeholder{color:rgba(138,85,102,.35)}
+.cf-input:focus,.cf-ta:focus{
+  border-color:var(--rose);
+  box-shadow:0 0 0 3px rgba(190,52,85,.08);
+}
+.cf-submit{
+  font-family:var(--font-sans);font-size:.72rem;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;color:#fff;
+  background:var(--grad-main);border:none;border-radius:100px;
+  padding:15px 40px;cursor:none;align-self:flex-start;
+  box-shadow:0 6px 24px rgba(190,52,85,.28);
+  transition:box-shadow .3s,transform .25s;
+}
+.cf-submit:hover{box-shadow:0 10px 36px rgba(190,52,85,.4);transform:translateY(-1px)}
+
+/* ─── FOOTER ─── */
+footer{
+  padding:3.5rem 5vw;
+  background:linear-gradient(90deg,#fff5f8,#fdf3e3);
+  border-top:1px solid var(--c-border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:1.5rem;z-index:2;position:relative;
+}
+.foot-logo{font-family:var(--font-serif);font-size:1.3rem;color:var(--c-ink);text-decoration:none;font-weight:400}
+.foot-links{display:flex;gap:2.5rem}
+.foot-links a{font-size:.68rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--c-muted);text-decoration:none;transition:color .25s}
+.foot-links a:hover{color:var(--rose)}
+.foot-copy{font-size:.68rem;color:var(--c-muted);letter-spacing:.06em}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:1024px){
+  .product-grid{grid-template-columns:repeat(2,1fr)}
+  .proc-grid{grid-template-columns:repeat(2,1fr)}
+  .feat-grid{grid-template-columns:repeat(2,1fr)}
+  .feat-grid .feat-card:last-child{grid-column:1 / -1;max-width:400px;margin:0 auto;width:100%}
+}
+@media(max-width:768px){
+  .nav-links,.nav-right .nav-cta{display:none}
+  .burger{display:flex}
+  .hero-inner{grid-template-columns:1fr;text-align:center}
+  .hero-sub{margin:0 auto 2.5rem}
+  .hero-btns{justify-content:center}
+  .hero-visual{order:-1}
+  #philosophy{grid-template-columns:1fr;gap:3.5rem}
+  #contact{grid-template-columns:1fr}
+  .cf-row{grid-template-columns:1fr}
+  footer{flex-direction:column;align-items:flex-start}
+  .foot-links{flex-wrap:wrap;gap:1.25rem}
+  .col-right{text-align:left}
+  .proc-header{flex-direction:column}
+}
+@media(max-width:520px){
+  .product-grid{grid-template-columns:1fr}
+  .feat-grid{grid-template-columns:1fr}
+  .proc-grid{grid-template-columns:1fr}
+  section{padding:6rem 5vw}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">
+    <div class="logo-gem">
+      <svg viewBox="0 0 16 16"><path d="M8 2 L14 6 L14 10 L8 14 L2 10 L2 6 Z"/></svg>
+    </div>
+    Velour
+  </a>
+  <ul class="nav-links">
+    <li><a href="#collection">Collection</a></li>
+    <li><a href="#features">Craft</a></li>
+    <li><a href="#philosophy">Story</a></li>
+    <li><a href="#contact">Atelier</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="#collection" class="nav-cta">Shop Collection</a>
+    <button class="burger" id="burger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div id="mob">
+  <a href="#collection">Collection</a>
+  <a href="#features">Craft</a>
+  <a href="#philosophy">Story</a>
+  <a href="#contact">Atelier</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-badge"><span class="dot"></span>New Season 2025</div>
+      <h1>
+        <span class="line"><span>Dresses that</span></span>
+        <span class="line"><span>define <span class="grad">your grace.</span></span></span>
+      </h1>
+      <p class="hero-sub">Premium couture dresses where artisan silhouette meets contemporary elegance. Each gown is a study in drape, light, and feminine form.</p>
+      <div class="hero-btns">
+        <a href="#collection" class="btn-primary">Explore Collection</a>
+        <a href="#philosophy" class="btn-outline">Our Story</a>
+      </div>
+    </div>
+    <div class="hero-visual" id="heroVisual">
+      <div class="frame-showcase">
+        <div class="badge-new">New Arrival</div>
+        <div class="showcase-label">Featured Dress</div>
+        <div class="showcase-name">The Lumière</div>
+        <!-- Dress SVG illustration -->
+        <svg class="showcase-svg" viewBox="0 0 320 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="dg1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#be3455"/>
+              <stop offset="55%" stop-color="#e05577"/>
+              <stop offset="100%" stop-color="#c9963a"/>
+            </linearGradient>
+            <linearGradient id="dg1b" x1="0%" y1="0%" x2="60%" y2="100%">
+              <stop offset="0%" stop-color="#e05577" stop-opacity="0.18"/>
+              <stop offset="100%" stop-color="#c9963a" stop-opacity="0.06"/>
+            </linearGradient>
+            <filter id="softglow">
+              <feGaussianBlur stdDeviation="4" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <!-- Bodice -->
+          <path d="M120 40 Q160 20 200 40 L215 110 Q190 130 160 128 Q130 130 105 110 Z" 
+            stroke="url(#dg1)" stroke-width="2" fill="url(#dg1b)" filter="url(#softglow)"/>
+          <!-- Neckline detail -->
+          <path d="M140 40 Q160 54 180 40" stroke="url(#dg1)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Left strap -->
+          <path d="M128 40 Q122 25 130 14" stroke="url(#dg1)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- Right strap -->
+          <path d="M192 40 Q198 25 190 14" stroke="url(#dg1)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- Waist seam -->
+          <path d="M107 114 Q160 132 213 114" stroke="url(#dg1)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-dasharray="4 3"/>
+          <!-- Skirt - A-line flare -->
+          <path d="M105 112 Q72 200 55 320 Q100 370 160 374 Q220 370 265 320 Q248 200 215 112 Q190 132 160 130 Q130 132 105 112 Z" 
+            stroke="url(#dg1)" stroke-width="2" fill="url(#dg1b)"/>
+          <!-- Skirt fold lines -->
+          <path d="M140 140 Q125 220 115 310" stroke="url(#dg1)" stroke-width="1" fill="none" stroke-linecap="round" stroke-opacity=".4"/>
+          <path d="M160 138 Q160 230 160 320" stroke="url(#dg1)" stroke-width="1" fill="none" stroke-linecap="round" stroke-opacity=".4"/>
+          <path d="M180 140 Q195 220 205 310" stroke="url(#dg1)" stroke-width="1" fill="none" stroke-linecap="round" stroke-opacity=".4"/>
+          <!-- Hem detail -->
+          <path d="M58 322 Q160 376 262 322" stroke="url(#dg1)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Shimmer highlights -->
+          <ellipse cx="145" cy="70" rx="14" ry="22" fill="rgba(255,255,255,.3)" transform="rotate(-12 145 70)"/>
+          <ellipse cx="155" cy="230" rx="10" ry="40" fill="rgba(255,255,255,.18)" transform="rotate(-8 155 230)"/>
+        </svg>
+        <div class="showcase-price">£1,840</div>
+        <div class="showcase-meta">Evening · Silk Organza · Rose Blush</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-ind" id="scrollInd" style="position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0">
+    <span style="font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;color:var(--c-muted)">Scroll</span>
+    <div style="width:1px;height:44px;background:linear-gradient(to bottom,var(--rose),transparent);animation:scrollAnim 2s ease-in-out infinite"></div>
+  </div>
+</section>
+<style>@keyframes scrollAnim{0%,100%{opacity:0;transform:scaleY(0);transform-origin:top}40%,70%{opacity:1;transform:scaleY(1);transform-origin:top}}</style>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <span class="ticker-item">Handcrafted in Paris <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">French Silk Organza <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">Gold Embroidery <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">Bespoke Silhouettes <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">Lifetime Alterations <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">Carbon Neutral <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">Made-to-Measure <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">Handcrafted in Paris <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">French Silk Organza <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">Gold Embroidery <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">Bespoke Silhouettes <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">Lifetime Alterations <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">Carbon Neutral <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">Made-to-Measure <span class="ticker-dot">✦</span></span>
+  </div>
+</div>
+
+<!-- COLLECTION -->
+<section id="collection">
+  <div class="col-top reveal">
+    <div>
+      <div class="sec-label">Collection 2025</div>
+      <h2 class="sec-h2">Designed for the <span class="grad">exceptional</span></h2>
+    </div>
+    <p class="col-right">Each gown is limited to 200 numbered pieces — hand-sewn, certified, and crafted entirely by master couturiers in our Paris atelier.</p>
+  </div>
+  <div class="product-grid">
+
+    <!-- Card 1: Lumière -->
+    <div class="p-card reveal">
+      <span class="p-num">No. 01</span>
+      <div class="p-frame">
+        <svg viewBox="0 0 180 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="c1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#be3455"/><stop offset="100%" stop-color="#e05577"/></linearGradient></defs>
+          <path d="M68 28 Q90 14 112 28 L122 78 Q104 92 90 90 Q76 92 58 78 Z" stroke="url(#c1)" stroke-width="1.8" fill="rgba(190,52,85,.07)"/>
+          <path d="M78 28 Q90 38 102 28" stroke="url(#c1)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          <path d="M58 76 Q90 92 122 76 Q140 160 148 240 Q120 262 90 264 Q60 262 32 240 Q40 160 58 76 Z" stroke="url(#c1)" stroke-width="1.8" fill="rgba(190,52,85,.05)"/>
+          <path d="M78 98 Q74 168 70 228" stroke="url(#c1)" stroke-width=".9" fill="none" stroke-opacity=".4"/>
+          <path d="M90 96 Q90 175 90 236" stroke="url(#c1)" stroke-width=".9" fill="none" stroke-opacity=".4"/>
+          <path d="M102 98 Q106 168 110 228" stroke="url(#c1)" stroke-width=".9" fill="none" stroke-opacity=".4"/>
+          <ellipse cx="82" cy="48" rx="8" ry="14" fill="rgba(255,255,255,.32)" transform="rotate(-10 82 48)"/>
+        </svg>
+      </div>
+      <div class="p-name">The Lumière</div>
+      <div class="p-type">Evening · Silk Organza · Blush</div>
+      <div class="p-footer">
+        <div class="p-price">£1,840</div>
+        <div class="p-btn">→</div>
+      </div>
+    </div>
+
+    <!-- Card 2: Solange -->
+    <div class="p-card reveal">
+      <span class="p-num">No. 02</span>
+      <div class="p-frame">
+        <svg viewBox="0 0 180 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="c2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#c9963a"/><stop offset="100%" stop-color="#e05577"/></linearGradient></defs>
+          <!-- Strapless bodice -->
+          <path d="M55 42 Q90 30 125 42 L130 90 Q104 105 90 103 Q76 105 50 90 Z" stroke="url(#c2)" stroke-width="1.8" fill="rgba(201,150,58,.08)"/>
+          <!-- Sweetheart neckline -->
+          <path d="M65 42 Q78 54 90 48 Q102 54 115 42" stroke="url(#c2)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          <!-- Full ballgown skirt -->
+          <path d="M50 88 Q20 180 14 248 Q52 268 90 270 Q128 268 166 248 Q160 180 130 88 Q104 105 90 103 Q76 105 50 88 Z" stroke="url(#c2)" stroke-width="1.8" fill="rgba(201,150,58,.05)"/>
+          <!-- Volume fold lines -->
+          <path d="M70 108 Q55 185 48 240" stroke="url(#c2)" stroke-width=".9" fill="none" stroke-opacity=".35"/>
+          <path d="M90 106 Q90 185 90 242" stroke="url(#c2)" stroke-width=".9" fill="none" stroke-opacity=".35"/>
+          <path d="M110 108 Q125 185 132 240" stroke="url(#c2)" stroke-width=".9" fill="none" stroke-opacity=".35"/>
+          <!-- Tulle layers suggestion -->
+          <path d="M25 200 Q90 215 155 200" stroke="url(#c2)" stroke-width=".8" fill="none" stroke-opacity=".3" stroke-dasharray="3 3"/>
+          <path d="M18 230 Q90 246 162 230" stroke="url(#c2)" stroke-width=".8" fill="none" stroke-opacity=".3" stroke-dasharray="3 3"/>
+          <ellipse cx="76" cy="60" rx="9" ry="16" fill="rgba(255,255,255,.28)" transform="rotate(-8 76 60)"/>
+        </svg>
+      </div>
+      <div class="p-name">The Solange</div>
+      <div class="p-type">Ballgown · Duchess Satin · Ivory</div>
+      <div class="p-footer">
+        <div class="p-price">£2,460</div>
+        <div class="p-btn">→</div>
+      </div>
+    </div>
+
+    <!-- Card 3: Éclat -->
+    <div class="p-card reveal">
+      <span class="p-num">No. 03</span>
+      <div class="p-frame">
+        <svg viewBox="0 0 180 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="c3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#be3455"/><stop offset="100%" stop-color="#c9963a"/></linearGradient></defs>
+          <!-- V-neck halter -->
+          <path d="M72 14 Q90 8 108 14 L115 22 Q104 40 90 46 Q76 40 65 22 Z" stroke="url(#c3)" stroke-width="1.8" fill="rgba(190,52,85,.07)"/>
+          <!-- V neckline -->
+          <path d="M72 18 Q90 44 108 18" stroke="url(#c3)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          <!-- Fitted column skirt -->
+          <path d="M65 22 Q58 60 56 120 Q54 180 58 250 Q74 262 90 263 Q106 262 122 250 Q126 180 124 120 Q122 60 115 22 Q104 40 90 46 Q76 40 65 22 Z" stroke="url(#c3)" stroke-width="1.8" fill="rgba(190,52,85,.05)"/>
+          <!-- Side seams -->
+          <path d="M63 60 Q60 160 64 245" stroke="url(#c3)" stroke-width=".9" fill="none" stroke-opacity=".4"/>
+          <path d="M117 60 Q120 160 116 245" stroke="url(#c3)" stroke-width=".9" fill="none" stroke-opacity=".4"/>
+          <!-- Subtle texture lines -->
+          <path d="M70 100 Q90 102 110 100" stroke="url(#c3)" stroke-width=".7" fill="none" stroke-opacity=".25"/>
+          <path d="M68 140 Q90 142 112 140" stroke="url(#c3)" stroke-width=".7" fill="none" stroke-opacity=".25"/>
+          <path d="M66 180 Q90 182 114 180" stroke="url(#c3)" stroke-width=".7" fill="none" stroke-opacity=".25"/>
+          <!-- Slit detail -->
+          <path d="M116 200 Q121 225 122 250" stroke="url(#c3)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <ellipse cx="80" cy="34" rx="7" ry="12" fill="rgba(255,255,255,.3)" transform="rotate(-6 80 34)"/>
+        </svg>
+      </div>
+      <div class="p-name">The Éclat</div>
+      <div class="p-type">Column · Crepe de Chine · Crimson</div>
+      <div class="p-footer">
+        <div class="p-price">£1,620</div>
+        <div class="p-btn">→</div>
+      </div>
+    </div>
+
+    <!-- Card 4: Aurore -->
+    <div class="p-card reveal">
+      <span class="p-num">No. 04</span>
+      <div class="p-frame">
+        <svg viewBox="0 0 180 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="c4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e05577"/><stop offset="100%" stop-color="#be3455"/></linearGradient></defs>
+          <!-- Off-shoulder neckline -->
+          <path d="M42 50 Q90 28 138 50 L136 88 Q108 104 90 102 Q72 104 44 88 Z" stroke="url(#c4)" stroke-width="1.8" fill="rgba(224,85,119,.07)"/>
+          <!-- Off-shoulder drape -->
+          <path d="M42 50 Q30 44 26 52" stroke="url(#c4)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M138 50 Q150 44 154 52" stroke="url(#c4)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M42 50 Q90 38 138 50" stroke="url(#c4)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          <!-- Midi A-line skirt -->
+          <path d="M44 86 Q28 160 22 230 Q56 252 90 254 Q124 252 158 230 Q152 160 136 86 Q108 104 90 102 Q72 104 44 86 Z" stroke="url(#c4)" stroke-width="1.8" fill="rgba(224,85,119,.05)"/>
+          <!-- Flare lines -->
+          <path d="M72 106 Q62 178 56 225" stroke="url(#c4)" stroke-width=".9" fill="none" stroke-opacity=".38"/>
+          <path d="M90 104 Q90 178 90 228" stroke="url(#c4)" stroke-width=".9" fill="none" stroke-opacity=".38"/>
+          <path d="M108 106 Q118 178 124 225" stroke="url(#c4)" stroke-width=".9" fill="none" stroke-opacity=".38"/>
+          <!-- Ruffle hem -->
+          <path d="M24 225 Q90 242 156 225" stroke="url(#c4)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          <path d="M21 232 Q90 250 159 232" stroke="url(#c4)" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-opacity=".5"/>
+          <ellipse cx="78" cy="62" rx="9" ry="15" fill="rgba(255,255,255,.3)" transform="rotate(-12 78 62)"/>
+        </svg>
+      </div>
+      <div class="p-name">The Aurore</div>
+      <div class="p-type">Midi · Off-Shoulder · Gold Dust</div>
+      <div class="p-footer">
+        <div class="p-price">£2,890</div>
+        <div class="p-btn">→</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="feat-header reveal">
+    <div class="sec-label">Why Velour</div>
+    <h2 class="sec-h2" style="margin-bottom:1rem">Where fabric meets <span class="grad">mastery</span></h2>
+    <p style="font-size:.88rem;color:var(--c-muted);line-height:1.75;font-weight:300">Every decision — silk weight, drape angle, stitch tension — is made with one question: will she feel extraordinary in twenty years?</p>
+  </div>
+  <div class="feat-grid">
+    <div class="feat-card reveal">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+      </div>
+      <div class="feat-title">Lyon Silk</div>
+      <p class="feat-body">Sourced from the oldest silk weaving houses on Rue de la Soierie, Lyon. The weight, lustre, and drape are unlike any synthetic — they age with the grace of wine.</p>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <div class="feat-title">Hand Embroidery</div>
+      <p class="feat-body">Beaded detailing and gold threadwork applied entirely by hand. Each embellishment is placed by our senior ateliers — no two dresses are ever identical.</p>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="feat-title">Parisian Construction</div>
+      <p class="feat-body">Internal boning, French seams, and hidden structure sewn to withstand a full evening of movement. The fit is architecturally precise — every dart is calculated.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PHILOSOPHY -->
+<section id="philosophy">
+  <div class="phi-visual reveal">
+    <div class="phi-card">
+      <span class="phi-q-mark">"</span>
+      <p class="phi-quote">A dress is the most intimate of all garments. It is the silhouette through which you move in the world — and the first impression you leave behind.</p>
+      <div class="phi-attr">Isabelle Fontaine, Founder</div>
+    </div>
+  </div>
+  <div class="phi-text reveal">
+    <div class="sec-label">Our Philosophy</div>
+    <h2 class="sec-h2">Built with <span class="grad">intention,</span><br>worn with pride</h2>
+    <p>Velour was founded in a small Marais atelier in 2013 with a single conviction: that exceptional couture should be indistinguishable from wearable art. Not because it has to look expensive — but because every detail has been genuinely considered.</p>
+    <p>We produce each collection in strictly limited runs. No warehouses, no excess — just 200 gowns per design, numbered and certified. When they're gone, they're gone.</p>
+    <div class="phi-stats">
+      <div class="phi-stat">
+        <div class="phi-stat-n">12</div>
+        <div class="phi-stat-l">Years of craft</div>
+      </div>
+      <div class="phi-stat">
+        <div class="phi-stat-n">200</div>
+        <div class="phi-stat-l">Pieces per design</div>
+      </div>
+      <div class="phi-stat">
+        <div class="phi-stat-n">36k</div>
+        <div class="phi-stat-l">Gowns worn worldwide</div>
+      </div>
+      <div class="phi-stat">
+        <div class="phi-stat-n">∞</div>
+        <div class="phi-stat-l">Lifetime alterations</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="proc-header reveal">
+    <div>
+      <div class="sec-label">How It's Made</div>
+      <h2 class="sec-h2">The <span class="grad">process</span></h2>
+    </div>
+    <p style="max-width:300px;font-size:.84rem;color:var(--c-muted);line-height:1.75;font-weight:300">From raw silk to your silhouette — four stages, zero shortcuts.</p>
+  </div>
+  <div class="proc-grid">
+    <div class="proc-card reveal">
+      <div class="proc-n">01</div>
+      <div class="proc-title">Fabric Curation</div>
+      <p class="proc-body">Our team visits Lyon, Como, and Paris twice yearly to select silk, organza, and embroidered toile. Only 6% of bolts are accepted. Touch, drape, and sheen must all be flawless.</p>
+    </div>
+    <div class="proc-card reveal">
+      <div class="proc-n">02</div>
+      <div class="proc-title">Pattern Cutting</div>
+      <p class="proc-body">Patterns are drafted on paper toile, then refined entirely by hand. Three fittings per silhouette. Curves that a block can rough — only a couturier's eye can perfect.</p>
+    </div>
+    <div class="proc-card reveal">
+      <div class="proc-n">03</div>
+      <div class="proc-title">Hand Assembly</div>
+      <p class="proc-body">Every seam is sewn by a single master tailor from start to finish. Seven stages of internal pressing and finishing achieve a surface and fall that machine sewing simply cannot.</p>
+    </div>
+    <div class="proc-card reveal">
+      <div class="proc-n">04</div>
+      <div class="proc-title">Final Fitting</div>
+      <p class="proc-body">Each gown is inspected against our fit standard. It is then numbered, certified on a woven label, and wrapped in acid-free tissue for delivery or in-atelier collection.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="con-left reveal">
+    <div class="sec-label">The Atelier</div>
+    <h2 class="sec-h2">Let us craft your <span class="grad">vision</span></h2>
+    <p>Whether you have a bespoke commission in mind, a fitting request, or simply want to understand what sets our gowns apart — we welcome every conversation.</p>
+    <div class="con-details">
+      <div class="con-row">
+        <div class="con-row-l">Email</div>
+        <div class="con-row-v">atelier@velour.com</div>
+      </div>
+      <div class="con-row">
+        <div class="con-row-l">Studio</div>
+        <div class="con-row-v">14 Rue des Rosiers, Paris</div>
+      </div>
+      <div class="con-row">
+        <div class="con-row-l">Hours</div>
+        <div class="con-row-v">Mon–Sat · 10am–6pm CET</div>
+      </div>
+    </div>
+  </div>
+  <div class="reveal">
+    <form class="con-form" id="cForm">
+      <div class="cf-row">
+        <div class="cf-field">
+          <label class="cf-label" for="fn">Full Name</label>
+          <input class="cf-input" id="fn" type="text" placeholder="Your name"/>
+        </div>
+        <div class="cf-field">
+          <label class="cf-label" for="fe">Email</label>
+          <input class="cf-input" id="fe" type="email" placeholder="you@domain.com"/>
+        </div>
+      </div>
+      <div class="cf-field">
+        <label class="cf-label" for="fs">Subject</label>
+        <input class="cf-input" id="fs" type="text" placeholder="Bespoke commission / General enquiry"/>
+      </div>
+      <div class="cf-field">
+        <label class="cf-label" for="fm">Message</label>
+        <textarea class="cf-ta" id="fm" rows="5" placeholder="Tell us about your vision..."></textarea>
+      </div>
+      <button type="submit" class="cf-submit" id="cBtn">Send Message</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#hero" class="foot-logo">Velour</a>
+  <nav class="foot-links">
+    <a href="#collection">Collection</a>
+    <a href="#features">Craft</a>
+    <a href="#philosophy">Story</a>
+    <a href="#contact">Atelier</a>
+    <a href="#">Privacy</a>
+  </nav>
+  <span class="foot-copy">© 2025 Velour Couture. All rights reserved.</span>
+</footer>
+
+<script>
+/* ─── CURSOR ─── */
+const cur=document.getElementById('cur'),ring=document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cur.style.left=mx+'px';cur.style.top=my+'px';
+});
+(function lerpRing(){
+  rx+=(mx-rx)*.1;ry+=(my-ry)*.1;
+  ring.style.left=rx+'px';ring.style.top=ry+'px';
+  requestAnimationFrame(lerpRing);
+})();
+
+/* ─── THREE.JS — soft petal particle field ─── */
+(function initThree(){
+  const canvas=document.getElementById('bg-canvas');
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.setClearColor(0x000000,0);
+
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,100);
+  camera.position.z=6;
+
+  /* particles */
+  const N=2000;
+  const geo=new THREE.BufferGeometry();
+  const pos=new Float32Array(N*3);
+  const col=new Float32Array(N*3);
+  const sz=new Float32Array(N);
+  const rose=new THREE.Color('#e05577');
+  const gold=new THREE.Color('#c9963a');
+  const blush=new THREE.Color('#f4a0b5');
+  const cream=new THREE.Color('#fdf3e3');
+  const palette=[rose,gold,blush,cream];
+  for(let i=0;i<N;i++){
+    pos[i*3]=(Math.random()-.5)*22;
+    pos[i*3+1]=(Math.random()-.5)*22;
+    pos[i*3+2]=(Math.random()-.5)*14;
+    const c=palette[Math.floor(Math.random()*palette.length)];
+    col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;
+    sz[i]=Math.random()>.85?2.8:1.1;
+  }
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+  geo.setAttribute('size',new THREE.BufferAttribute(sz,1));
+
+  const mat=new THREE.ShaderMaterial({
+    vertexColors:true,transparent:true,depthWrite:false,
+    vertexShader:`attribute float size;varying vec3 vC;varying float vA;
+      void main(){vC=color;vec4 mv=modelViewMatrix*vec4(position,1.);
+      gl_PointSize=size*(280./-mv.z);gl_Position=projectionMatrix*mv;vA=size;}`,
+    fragmentShader:`varying vec3 vC;varying float vA;
+      void main(){float d=distance(gl_PointCoord,vec2(.5));
+      if(d>.5)discard;float a=(1.-smoothstep(.15,.5,d))*(vA>.5?.55:.3);
+      gl_FragColor=vec4(vC,a);}`
+  });
+  scene.add(new THREE.Points(geo,mat));
+
+  /* floating rings */
+  const mkRing=(r,thick,color,opac)=>{
+    const m=new THREE.Mesh(
+      new THREE.TorusGeometry(r,thick,8,100),
+      new THREE.MeshBasicMaterial({color,transparent:true,opacity:opac})
+    );return m;
+  };
+  const r1=mkRing(2.2,.003,0xe05577,.18);r1.rotation.x=Math.PI/3.5;scene.add(r1);
+  const r2=mkRing(3.4,.002,0xc9963a,.1);r2.rotation.x=Math.PI/5;r2.rotation.y=Math.PI/7;scene.add(r2);
+  const r3=mkRing(1.4,.004,0xbe3455,.16);r3.rotation.z=Math.PI/4;scene.add(r3);
+
+  let tmx=0,tmy=0;
+  document.addEventListener('mousemove',e=>{
+    tmx=(e.clientX/innerWidth-.5)*1.2;
+    tmy=-(e.clientY/innerHeight-.5)*1.2;
+  });
+
+  let t=0;
+  (function tick(){
+    requestAnimationFrame(tick);t+=.003;
+    scene.children[0].rotation.y=t*.06;
+    scene.children[0].rotation.x=t*.03;
+    r1.rotation.z=t*.1;r2.rotation.z=-t*.07;r3.rotation.x=t*.12;
+    camera.position.x+=(tmx*.5-camera.position.x)*.04;
+    camera.position.y+=(tmy*.5-camera.position.y)*.04;
+    camera.lookAt(scene.position);
+    renderer.render(scene,camera);
+  })();
+
+  window.addEventListener('resize',()=>{
+    camera.aspect=innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+  });
+})();
+
+/* ─── NAV GLASS ─── */
+const navEl=document.getElementById('nav');
+window.addEventListener('scroll',()=>{
+  navEl.classList.toggle('glass',scrollY>36);
+},{passive:true});
+
+/* ─── BURGER ─── */
+const burger=document.getElementById('burger');
+const mob=document.getElementById('mob');
+function toggleMob(open){
+  burger.classList.toggle('open',open);
+  mob.classList.toggle('open',open);
+  document.body.style.overflow=open?'hidden':'';
+}
+burger.addEventListener('click',()=>toggleMob(!burger.classList.contains('open')));
+mob.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>toggleMob(false)));
+
+/* ─── GSAP ─── */
+gsap.registerPlugin(ScrollTrigger);
+
+gsap.to('.hero-badge',{opacity:1,y:0,duration:.9,delay:.3,ease:'power3.out'});
+document.querySelectorAll('h1 .line span').forEach((el,i)=>{
+  gsap.to(el,{y:'0%',duration:1.05,delay:.5+i*.16,ease:'expo.out'});
+});
+gsap.to('h1',{opacity:1,duration:.01,delay:.45});
+gsap.to('.hero-sub',{opacity:1,y:0,duration:.85,delay:.88,ease:'power3.out'});
+gsap.to('.hero-btns',{opacity:1,y:0,duration:.85,delay:1.05,ease:'power3.out'});
+gsap.to('#heroVisual',{opacity:1,y:0,scale:1,duration:1.1,delay:.7,ease:'expo.out'});
+gsap.to('#scrollInd',{opacity:1,duration:.7,delay:1.6});
+
+document.querySelectorAll('.reveal').forEach(el=>{
+  gsap.to(el,{
+    opacity:1,y:0,duration:.85,ease:'power3.out',
+    scrollTrigger:{trigger:el,start:'top 87%',toggleActions:'play none none none'}
+  });
+});
+
+/* ─── ANCHOR SCROLL ─── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(!t)return;e.preventDefault();
+    window.scrollTo({top:t.getBoundingClientRect().top+scrollY-70,behavior:'smooth'});
+  });
+});
+
+/* ─── CONTACT FORM ─── */
+document.getElementById('cForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const b=document.getElementById('cBtn');
+  b.textContent='Message Sent ✓';
+  b.style.background='linear-gradient(135deg,#be3455,#c9963a)';
+  setTimeout(()=>{b.textContent='Send Message';b.style.background='';e.target.reset();},3000);
+});
+</script>
+</body>
+</html>
